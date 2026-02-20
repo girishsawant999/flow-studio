@@ -1,11 +1,12 @@
 import {
   CornersOutIcon as CornersOut,
+  KeyboardIcon as Keyboard,
   MagnifyingGlassMinusIcon as MagnifyingGlassMinus,
   MagnifyingGlassPlusIcon as MagnifyingGlassPlus,
   PencilSimpleIcon as PencilSimple,
 } from "@phosphor-icons/react";
 import type { MouseEvent as ReactMouseEvent } from "react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useFlow } from "../context/FlowContext";
 import type { Position } from "../types";
@@ -28,6 +29,9 @@ export default function Canvas() {
     null,
   );
   const [mousePos, setMousePos] = useState<Position>({ x: 0, y: 0 });
+
+  // Shortcuts hint
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   // Handle canvas pan
   const handleMouseDown = (e: ReactMouseEvent) => {
@@ -80,7 +84,7 @@ export default function Canvas() {
     }
   };
 
-  const handleZoomIn = () => {
+  const handleZoomIn = useCallback(() => {
     if (!canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const centerX = rect.width / 2;
@@ -96,9 +100,9 @@ export default function Canvas() {
         zoom: newZoom,
       },
     });
-  };
+  }, [state.transform, dispatch]);
 
-  const handleZoomOut = () => {
+  const handleZoomOut = useCallback(() => {
     if (!canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const centerX = rect.width / 2;
@@ -114,9 +118,9 @@ export default function Canvas() {
         zoom: newZoom,
       },
     });
-  };
+  }, [state.transform, dispatch]);
 
-  const handleCenter = () => {
+  const handleCenter = useCallback(() => {
     if (state.nodes.length === 0) {
       dispatch({
         type: "SET_TRANSFORM",
@@ -164,7 +168,7 @@ export default function Canvas() {
       type: "SET_TRANSFORM",
       payload: { x: newX, y: newY, zoom: newZoom },
     });
-  };
+  }, [state.nodes, dispatch]);
 
   // Handle zooming
   useEffect(() => {
@@ -199,6 +203,92 @@ export default function Canvas() {
     canvasEl.addEventListener("wheel", handleWheel, { passive: false });
     return () => canvasEl.removeEventListener("wheel", handleWheel);
   }, [state.transform, dispatch]);
+
+  // Add new node in the visible viewport center
+  const addNodeAtCenter = useCallback(() => {
+    const centerX = canvasRef.current
+      ? canvasRef.current.getBoundingClientRect().width / 2
+      : 400;
+    const centerY = canvasRef.current
+      ? canvasRef.current.getBoundingClientRect().height / 2
+      : 300;
+
+    dispatch({
+      type: "ADD_NODE",
+      payload: {
+        id: `node_${uuidv4().substring(0, 6)}`,
+        description: "New Step",
+        prompt: "",
+        position: {
+          x: (centerX - state.transform.x) / state.transform.zoom,
+          y: (centerY - state.transform.y) / state.transform.zoom,
+        },
+      },
+    });
+  }, [dispatch, state.transform]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const PAN_STEP = 50;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Skip shortcuts when typing in form fields
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
+      const key = e.key.toLowerCase();
+
+      switch (key) {
+        case "w":
+          dispatch({
+            type: "SET_TRANSFORM",
+            payload: { ...state.transform, y: state.transform.y + PAN_STEP },
+          });
+          break;
+        case "a":
+          dispatch({
+            type: "SET_TRANSFORM",
+            payload: { ...state.transform, x: state.transform.x + PAN_STEP },
+          });
+          break;
+        case "s":
+          dispatch({
+            type: "SET_TRANSFORM",
+            payload: { ...state.transform, y: state.transform.y - PAN_STEP },
+          });
+          break;
+        case "d":
+          dispatch({
+            type: "SET_TRANSFORM",
+            payload: { ...state.transform, x: state.transform.x - PAN_STEP },
+          });
+          break;
+        case "+":
+        case "=":
+          handleZoomIn();
+          break;
+        case "-":
+          handleZoomOut();
+          break;
+        case "0":
+          handleCenter();
+          break;
+        case "n":
+          addNodeAtCenter();
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    state.transform,
+    dispatch,
+    handleZoomIn,
+    handleZoomOut,
+    handleCenter,
+    addNodeAtCenter,
+  ]);
 
   // Node Handle Events connection
   const onHandleMouseDown = (nodeId: string, e: React.MouseEvent) => {
@@ -342,26 +432,84 @@ export default function Canvas() {
         ))}
       </div>
 
-      {/* Floating Panel */}
+      {/* Floating Shortcuts Hint */}
+      <div
+        className="absolute left-4 bottom-4 z-10"
+        onMouseEnter={() => setShowShortcuts(true)}
+        onMouseLeave={() => setShowShortcuts(false)}
+      >
+        <div className="bg-white dark:bg-stone-900 border border-slate-200 dark:border-stone-800 rounded-lg shadow-lg overflow-hidden transition-all duration-200">
+          {showShortcuts ? (
+            <div className="px-4 py-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs text-slate-600 dark:text-slate-400 min-w-[190px] animate-[fadeIn_150ms_ease-out]">
+              <span className="font-semibold text-slate-800 dark:text-slate-200 flex gap-1">
+                <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
+                  W
+                </kbd>
+                <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
+                  A
+                </kbd>
+                <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
+                  S
+                </kbd>
+                <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
+                  D
+                </kbd>
+              </span>
+              <span>Pan</span>
+
+              <span className="font-semibold text-slate-800 dark:text-slate-200 flex gap-1">
+                <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
+                  +
+                </kbd>
+                <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
+                  −
+                </kbd>
+              </span>
+              <span>Zoom In / Out</span>
+
+              <span className="font-semibold text-slate-800 dark:text-slate-200">
+                <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
+                  0
+                </kbd>
+              </span>
+              <span>Center View</span>
+
+              <span className="font-semibold text-slate-800 dark:text-slate-200">
+                <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
+                  N
+                </kbd>
+              </span>
+              <span>New Node</span>
+            </div>
+          ) : (
+            <button className="flex items-center gap-1.5 px-3 py-2 text-xs text-slate-500 dark:text-slate-400 cursor-pointer select-none">
+              <Keyboard size={16} />
+              <span>Shortcuts</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Floating Zoom Panel */}
       <div className="absolute right-4 bottom-4 flex flex-col gap-2 bg-white dark:bg-stone-900 p-2 rounded-lg shadow-lg border border-slate-200 dark:border-stone-800 z-10 transition-colors">
         <button
           onClick={handleZoomIn}
           className="p-2 hover:bg-slate-100 dark:hover:bg-stone-800 rounded-md transition-colors text-slate-700 dark:text-slate-300 flex items-center justify-center cursor-pointer"
-          title="Zoom In"
+          title="Zoom In (+)"
         >
           <MagnifyingGlassPlus size={20} />
         </button>
         <button
           onClick={handleZoomOut}
           className="p-2 hover:bg-slate-100 dark:hover:bg-stone-800 rounded-md transition-colors text-slate-700 dark:text-slate-300 flex items-center justify-center cursor-pointer"
-          title="Zoom Out"
+          title="Zoom Out (-)"
         >
           <MagnifyingGlassMinus size={20} />
         </button>
         <button
           onClick={handleCenter}
           className="p-2 hover:bg-slate-100 dark:hover:bg-stone-800 rounded-md transition-colors text-slate-700 dark:text-slate-300 flex items-center justify-center cursor-pointer"
-          title="Reset View"
+          title="Reset View (0)"
         >
           <CornersOut size={20} />
         </button>

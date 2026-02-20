@@ -1,4 +1,4 @@
-# Visual Flow Builder
+# FlowStudio
 
 A modern, highly interactive flow builder designed from scratch without relying on external canvas/graph libraries like React Flow or state management libraries like Zustand.
 
