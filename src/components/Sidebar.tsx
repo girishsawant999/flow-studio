@@ -403,9 +403,31 @@ function NodeEditor({ node }: { node: Node }) {
 
 function EdgeEditor({ edge }: { edge: Edge }) {
   const { state, dispatch } = useFlow();
+  const [newKey, setNewKey] = useState("");
+  const [newValue, setNewValue] = useState("");
 
   const sourceNode = state.nodes.find((n) => n.id === edge.sourceNodeId);
   const targetNode = state.nodes.find((n) => n.id === edge.targetNodeId);
+
+  const handleAddParam = () => {
+    if (!newKey.trim()) return;
+    const updatedParams = { ...(edge.parameters || {}), [newKey]: newValue };
+    dispatch({
+      type: "UPDATE_EDGE",
+      payload: { id: edge.id, data: { parameters: updatedParams } },
+    });
+    setNewKey("");
+    setNewValue("");
+  };
+
+  const handleRemoveParam = (key: string) => {
+    const updatedParams = { ...(edge.parameters || {}) };
+    delete updatedParams[key];
+    dispatch({
+      type: "UPDATE_EDGE",
+      payload: { id: edge.id, data: { parameters: updatedParams } },
+    });
+  };
 
   return (
     <div className="w-[380px] bg-white dark:bg-stone-900 border-l border-slate-200 dark:border-stone-800 flex flex-col shadow-[-4px_0_15px_rgba(0,0,0,0.03)] z-10 h-full">
@@ -473,7 +495,7 @@ function EdgeEditor({ edge }: { edge: Edge }) {
           title="Condition"
         />
 
-        <div className="mb-4">
+        <div className="mb-8">
           <label className="block text-[13px] font-medium text-gray-500 dark:text-gray-400 mb-1.5">
             Condition Text / Intent
           </label>
@@ -492,6 +514,67 @@ function EdgeEditor({ edge }: { edge: Edge }) {
             This text is displayed on the canvas branch and used to evaluate
             user intent routing.
           </p>
+        </div>
+
+        <hr className="border-0 border-t border-slate-200 dark:border-stone-800 my-6" />
+
+        <SectionHeading
+          icon={<Link size={16} className="text-gray-500 dark:text-gray-400" />}
+          title="Parameters"
+        />
+
+        <div className="space-y-4">
+          {edge.parameters && Object.keys(edge.parameters).length > 0 && (
+            <div className="space-y-2">
+              {Object.entries(edge.parameters).map(([key, value]) => (
+                <div
+                  key={key}
+                  className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-stone-950 border border-slate-200 dark:border-stone-800 rounded-lg group"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] text-gray-500 uppercase font-bold truncate">
+                      {key}
+                    </div>
+                    <div className="text-sm text-gray-900 dark:text-gray-50 truncate">
+                      {value}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleRemoveParam(key)}
+                    className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <Trash size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="p-3 border border-dashed border-slate-300 dark:border-stone-700 rounded-lg space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                placeholder="Key"
+                className="w-full px-2 py-1.5 text-xs rounded border border-slate-200 dark:border-stone-800 bg-white dark:bg-stone-900"
+                value={newKey}
+                onChange={(e) => setNewKey(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Value"
+                className="w-full px-2 py-1.5 text-xs rounded border border-slate-200 dark:border-stone-800 bg-white dark:bg-stone-900"
+                value={newValue}
+                onChange={(e) => setNewValue(e.target.value)}
+              />
+            </div>
+            <button
+              onClick={handleAddParam}
+              disabled={!newKey.trim()}
+              className="btn btn-secondary w-full py-1.5 text-xs"
+            >
+              <Plus size={14} /> Add Parameter
+            </button>
+          </div>
         </div>
       </div>
     </div>
