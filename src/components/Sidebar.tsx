@@ -1,21 +1,21 @@
 import {
-  ArrowRight,
-  ChartPieSlice,
-  ChatTeardropText,
-  CodeBlock,
-  Copy,
-  CursorClick,
-  DownloadSimple,
-  Flag,
-  GitBranch,
-  Graph,
-  Hash,
-  Link,
-  LinkBreak,
-  Plus,
-  TextAa,
-  Trash,
-  UploadSimple,
+  ArrowRightIcon as ArrowRight,
+  ChartPieSliceIcon as ChartPieSlice,
+  ChatTeardropTextIcon as ChatTeardropText,
+  CodeBlockIcon as CodeBlock,
+  CopyIcon as Copy,
+  CursorClickIcon as CursorClick,
+  DownloadSimpleIcon as DownloadSimple,
+  FlagIcon as Flag,
+  GitBranchIcon as GitBranch,
+  GraphIcon as Graph,
+  HashIcon as Hash,
+  LinkIcon as Link,
+  LinkBreakIcon as LinkBreak,
+  PlusIcon as Plus,
+  TextAaIcon as TextAa,
+  TrashIcon as Trash,
+  UploadSimpleIcon as UploadSimple,
 } from "@phosphor-icons/react";
 import React, { useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -308,9 +308,7 @@ function NodeEditor({ node }: { node: Node }) {
       <div className="p-6 pb-[100px] flex-1 overflow-y-auto">
         {/* IDENTITY SECTION */}
         <SectionHeading
-          icon={
-            <Hash size={16} className="text-gray-500 dark:text-gray-400" />
-          }
+          icon={<Hash size={16} className="text-gray-500 dark:text-gray-400" />}
           title="Identity & Settings"
         />
 

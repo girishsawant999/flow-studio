@@ -1,7 +1,7 @@
 import {
-  CornersOut,
-  MagnifyingGlassMinus,
-  MagnifyingGlassPlus,
+  CornersOutIcon as CornersOut,
+  MagnifyingGlassMinusIcon as MagnifyingGlassMinus,
+  MagnifyingGlassPlusIcon as MagnifyingGlassPlus,
 } from "@phosphor-icons/react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import React, { useEffect, useRef, useState } from "react";
@@ -260,7 +260,7 @@ export default function Canvas() {
       onMouseLeave={handleMouseUp}
     >
       <div
-        className="absolute inset-0 pointer-events-none bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] dark:bg-[radial-gradient(#292524_1px,transparent_1px)] delay-0"
+        className={`absolute inset-0 pointer-events-none bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] dark:bg-[radial-gradient(#292524_1px,transparent_1px)] delay-0 ${!isPanning ? "transition-[background-position,background-size] duration-150 ease-out" : ""}`}
         style={{
           backgroundPosition: `${state.transform.x}px ${state.transform.y}px`,
           backgroundSize: `${20 * state.transform.zoom}px ${20 * state.transform.zoom}px`,
@@ -268,7 +268,7 @@ export default function Canvas() {
       />
 
       <div
-        className="absolute inset-0 origin-top-left pointer-events-none"
+        className={`absolute inset-0 origin-top-left pointer-events-none ${!isPanning ? "transition-transform duration-150 ease-out" : ""}`}
         style={{
           transform: `translate(${state.transform.x}px, ${state.transform.y}px) scale(${state.transform.zoom})`,
         }}

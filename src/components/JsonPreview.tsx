@@ -1,12 +1,12 @@
 import {
-  CaretDown,
-  CaretUp,
-  CheckCircle,
-  Copy,
-  DownloadSimple,
-  UploadSimple,
-  WarningCircle,
-  X,
+  CaretDownIcon as CaretDown,
+  CaretUpIcon as CaretUp,
+  CheckCircleIcon as CheckCircle,
+  CopyIcon as Copy,
+  DownloadSimpleIcon as DownloadSimple,
+  UploadSimpleIcon as UploadSimple,
+  WarningCircleIcon as WarningCircle,
+  XIcon as X,
 } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
