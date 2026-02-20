@@ -242,25 +242,25 @@ export default function Canvas() {
         case "w":
           dispatch({
             type: "SET_TRANSFORM",
-            payload: { ...state.transform, y: state.transform.y + PAN_STEP },
+            payload: { ...state.transform, y: state.transform.y - PAN_STEP },
           });
           break;
         case "a":
           dispatch({
             type: "SET_TRANSFORM",
-            payload: { ...state.transform, x: state.transform.x + PAN_STEP },
+            payload: { ...state.transform, x: state.transform.x - PAN_STEP },
           });
           break;
         case "s":
           dispatch({
             type: "SET_TRANSFORM",
-            payload: { ...state.transform, y: state.transform.y - PAN_STEP },
+            payload: { ...state.transform, y: state.transform.y + PAN_STEP },
           });
           break;
         case "d":
           dispatch({
             type: "SET_TRANSFORM",
-            payload: { ...state.transform, x: state.transform.x - PAN_STEP },
+            payload: { ...state.transform, x: state.transform.x + PAN_STEP },
           });
           break;
         case "+":
