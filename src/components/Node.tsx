@@ -44,7 +44,7 @@ export default function FlowNode({
 
     const handleMouseMove = (e: MouseEvent) => {
       // Calculate new position based on canvas transform
-      const canvasEl = document.querySelector(".canvas-area");
+      const canvasEl = document.getElementById("canvas-area");
       if (!canvasEl) return;
 
       const rect = canvasEl.getBoundingClientRect();
@@ -81,32 +81,26 @@ export default function FlowNode({
 
   return (
     <div
-      className={`node-container ${isSelected ? "selected" : ""} ${isStart ? "start-node" : ""} animate-slide-in`}
+      className={`absolute pointer-events-auto bg-white dark:bg-stone-900 border rounded-xl p-4 min-w-[220px] shadow-sm cursor-grab select-none transition-shadow duration-200 active:cursor-grabbing hover:shadow-md ${isSelected ? "border-[#7ed6df] shadow-[0_0_0_3px_rgba(126,214,223,0.3)] z-10" : "border-slate-300 dark:border-stone-700 z-2"} ${isStart ? "border-l-4! border-l-[#7ed6df]!" : ""} animate-[slideIn_0.3s_ease-out_forwards]`}
       style={{
         left: node.position.x,
         top: node.position.y,
-        pointerEvents: "auto", // Important so children events pass up
-        zIndex: isSelected ? 10 : 2,
       }}
       onMouseDown={handleMouseDown}
     >
-      <div className="node-id">{node.id}</div>
-      <div className="node-title">{node.description || "Untitled Step"}</div>
-      <div
-        className="node-prompt"
-        style={{
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          maxWidth: "200px",
-        }}
-      >
+      <div className="text-[11px] text-gray-500 dark:text-gray-400 font-mono mb-3">
+        {node.id}
+      </div>
+      <div className="font-semibold text-sm mb-1">
+        {node.description || "Untitled Step"}
+      </div>
+      <div className="text-[13px] text-gray-900 dark:text-gray-50 opacity-90 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
         {node.prompt}
       </div>
 
       {/* Input handle (Left) */}
       <div
-        className="node-handle handle-left"
+        className="absolute w-4 h-4 bg-white dark:bg-stone-900 border-2 border-slate-200 dark:border-stone-800 rounded-full top-1/2 -translate-y-1/2 cursor-crosshair transition-all duration-200 z-5 hover:bg-[#7ed6df] hover:border-[#7ed6df] hover:scale-120 -left-2"
         onMouseDown={(e) => {
           e.stopPropagation();
         }} // Maybe left doesn't start edges, just receives them
@@ -115,7 +109,7 @@ export default function FlowNode({
 
       {/* Output handle (Right) */}
       <div
-        className="node-handle handle-right"
+        className="absolute w-4 h-4 bg-white dark:bg-stone-900 border-2 border-slate-200 dark:border-stone-800 rounded-full top-1/2 -translate-y-1/2 cursor-crosshair transition-all duration-200 z-5 hover:bg-[#7ed6df] hover:border-[#7ed6df] hover:scale-120 -right-2"
         onMouseDown={(e) => onHandleMouseDown(node.id, e)}
         onMouseUp={(e) => {
           e.stopPropagation();

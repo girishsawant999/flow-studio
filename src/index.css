@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 :root {
   font-family:
     "Outfit", "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -7,22 +9,22 @@
   color-scheme: light dark;
   --bg-color: #f8fafc;
   --panel-bg: #ffffff;
-  --text-primary: #0f172a;
+  --text-primary: #334155;
   --text-secondary: #64748b;
   --border-color: #e2e8f0;
 
-  --accent-color: #3b82f6;
-  --accent-hover: #2563eb;
+  --accent-color: rgb(126 214 223);
+  --accent-hover: rgb(106 194 203);
 
   --node-bg: #ffffff;
   --node-border: #cbd5e1;
   --node-shadow:
     0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --node-selected-border: #3b82f6;
-  --node-selected-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  --node-selected-border: var(--accent-color);
+  --node-selected-shadow: 0 0 0 3px rgb(126 214 223 / 0.3);
 
   --edge-color: #94a3b8;
-  --edge-selected: #3b82f6;
+  --edge-selected: var(--accent-color);
 
   --danger-color: #ef4444;
 
@@ -36,7 +38,7 @@
   :root {
     --bg-color: #0c0a09;
     --panel-bg: #1c1917;
-    --text-primary: #f8fafc;
+    --text-primary: #e2e8f0;
     --text-secondary: #94a3b8;
     --border-color: #292524;
 
@@ -69,251 +71,38 @@ body {
   height: 100vh;
 }
 
-.layout-container {
-  display: flex;
-  width: 100%;
-  height: 100%;
+@layer components {
+  /* Base button styles applied to all variants */
+  .btn {
+    @apply flex items-center justify-center gap-2 px-2 border border-current/20 border-solid  py-1.5 font-medium rounded-lg cursor-pointer transition-all duration-200 select-none active:scale-[0.98];
+  }
+
+  /* Primary Action (e.g., Add Node, Validate) */
+  .btn-primary {
+    @apply bg-[#7ed6df] text-gray-800 shadow-[0_4px_12px_rgba(126,214,223,0.3)] hover:bg-[#6ac2cb] hover:shadow-[0_6px_16px_rgba(126,214,223,0.4)];
+  }
+
+  /* Secondary Action (e.g., Import Flow, Cancel) */
+  .btn-secondary {
+    @apply bg-slate-50 dark:bg-stone-950 text-gray-700 dark:text-gray-50 border border-slate-200 dark:border-stone-800 hover:bg-slate-200 dark:hover:bg-stone-800;
+  }
+
+  /* Success Action (e.g., Import to Canvas) */
+  .btn-success {
+    @apply bg-emerald-500 text-white shadow-md hover:bg-emerald-600 hover:shadow-lg;
+  }
+
+  /* Danger Action (e.g., Delete Node/Edge) - Currently icon-only but we can define a solid variant if needed */
+  .btn-danger {
+    @apply bg-red-500 text-white shadow-md hover:bg-red-600 hover:shadow-lg;
+  }
+
+  /* Icon-only subtle buttons (e.g., Top right actions on panels) */
+  .btn-icon {
+    @apply bg-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-50 hover:bg-slate-200 dark:hover:bg-stone-800 p-1.5 rounded-md;
+  }
 }
 
-.canvas-area {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-  background-color: var(--bg-color);
-}
-
-.canvas-bg-pattern {
-  position: absolute;
-  inset: 0;
-  /* subtle dot pattern */
-  background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
-  background-size: 20px 20px;
-  pointer-events: none;
-}
-
-.sidebar {
-  width: 380px;
-  background-color: var(--panel-bg);
-  border-left: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.03);
-  z-index: 10;
-}
-
-.json-preview {
-  position: absolute;
-  bottom: 24px;
-  left: 24px;
-  width: 400px;
-  max-height: 300px;
-  background-color: var(--panel-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 10;
-  transition:
-    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.3s ease;
-}
-
-.json-preview.collapsed {
-  transform: translateY(calc(100% - 48px));
-}
-
-.header-bar {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border-color);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.content-area {
-  padding: 20px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-/* Custom UI Elements */
-.control-btn {
-  background: transparent;
-  color: var(--text-secondary);
-  border: none;
-  border-radius: 6px;
-  padding: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.control-btn:hover {
-  background-color: var(--border-color);
-  color: var(--text-primary);
-}
-
-.primary-btn {
-  background-color: var(--accent-color);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-family: inherit;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.primary-btn:hover {
-  background-color: var(--accent-hover);
-}
-
-.input-field {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background-color: var(--bg-color);
-  color: var(--text-primary);
-  font-family: inherit;
-  font-size: 14px;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.input-field:focus {
-  outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-label {
-  display: block;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
-}
-
-/* Base Canvas & SVG Styles */
-.node-container {
-  position: absolute;
-  background-color: var(--node-bg);
-  border: 1px solid var(--node-border);
-  border-radius: 12px;
-  padding: 16px;
-  min-width: 220px;
-  box-shadow: var(--node-shadow);
-  cursor: grab;
-  user-select: none;
-  transition: box-shadow 0.2s ease;
-}
-
-.node-container:active {
-  cursor: grabbing;
-}
-
-.node-container.selected {
-  border-color: var(--node-selected-border);
-  box-shadow: var(--node-selected-shadow), var(--node-shadow);
-}
-
-.node-container.start-node {
-  border-left: 4px solid var(--accent-color);
-}
-
-.node-title {
-  font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 4px;
-}
-
-.node-id {
-  font-size: 11px;
-  color: var(--text-secondary);
-  font-family: monospace;
-  margin-bottom: 12px;
-}
-
-.node-prompt {
-  font-size: 13px;
-  color: var(--text-primary);
-  opacity: 0.9;
-}
-
-.node-handle {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  background-color: var(--panel-bg);
-  border: 2px solid var(--border-color);
-  border-radius: 50%;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: crosshair;
-  transition: all 0.2s ease;
-  z-index: 5;
-}
-
-.node-handle:hover {
-  background-color: var(--accent-color);
-  border-color: var(--accent-color);
-  transform: translateY(-50%) scale(1.2);
-}
-
-.handle-left {
-  left: -8px;
-}
-.handle-right {
-  right: -8px;
-}
-
-.canvas-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none; /* Only paths should have pointer events */
-  z-index: 1; /* Below nodes */
-}
-
-.connection-path {
-  fill: none;
-  stroke: var(--edge-color);
-  stroke-width: 2;
-  transition:
-    stroke 0.2s ease,
-    stroke-width 0.2s ease;
-  pointer-events: stroke;
-  cursor: pointer;
-}
-
-.connection-path:hover,
-.connection-path.selected {
-  stroke: var(--edge-selected);
-  stroke-width: 3;
-}
-
-.connection-path-bg {
-  fill: none;
-  stroke: transparent;
-  stroke-width: 20;
-  pointer-events: stroke;
-  cursor: pointer;
-}
-
-/* Animations */
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -323,34 +112,4 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.animate-slide-in {
-  animation: slideIn 0.3s ease-out forwards;
-}
-
-/* Edge Label HTML Overlay */
-.edge-label {
-  position: absolute;
-  background-color: var(--panel-bg);
-  border: 1px solid var(--border-color);
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  pointer-events: auto;
-  cursor: pointer;
-  transform: translate(-50%, -50%); /* Centered on the point */
-  z-index: 2;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.edge-label:hover,
-.edge-label.selected {
-  border-color: var(--edge-selected);
-  color: var(--text-primary);
-  z-index: 3;
 }

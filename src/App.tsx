@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import Canvas from "./components/Canvas";
-import JsonPreview from "./components/JsonPreview";
 import Sidebar from "./components/Sidebar";
 import { useFlow } from "./context/FlowContext";
 
@@ -32,15 +31,9 @@ function App() {
   }, [state.selectedNodeId, state.selectedEdgeId, dispatch]);
 
   return (
-    <div
-      className="layout-container"
-      onClick={() => {
-        // Deselect if clicking the outermost app container (rare due to canvas covering bg
-      }}
-    >
+    <div className="flex w-full h-full">
       <Canvas />
       <Sidebar />
-      <JsonPreview />
     </div>
   );
 }

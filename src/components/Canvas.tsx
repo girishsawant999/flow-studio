@@ -1,3 +1,8 @@
+import {
+  CornersOut,
+  MagnifyingGlassMinus,
+  MagnifyingGlassPlus,
+} from "@phosphor-icons/react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import React, { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -68,6 +73,33 @@ export default function Canvas() {
       setIsDrawingEdge(false);
       setDrawingEdgeSource(null);
     }
+  };
+
+  const handleZoomIn = () => {
+    dispatch({
+      type: "SET_TRANSFORM",
+      payload: {
+        ...state.transform,
+        zoom: Math.min(state.transform.zoom + 0.2, 3),
+      },
+    });
+  };
+
+  const handleZoomOut = () => {
+    dispatch({
+      type: "SET_TRANSFORM",
+      payload: {
+        ...state.transform,
+        zoom: Math.max(state.transform.zoom - 0.2, 0.1),
+      },
+    });
+  };
+
+  const handleCenter = () => {
+    dispatch({
+      type: "SET_TRANSFORM",
+      payload: { x: 0, y: 0, zoom: 1 },
+    });
   };
 
   // Handle zooming
@@ -151,17 +183,17 @@ export default function Canvas() {
 
     return (
       <path
-        className="connection-path"
+        className="fill-none stroke-2 stroke-[#7ed6df] pointer-events-none"
         d={pathData}
         strokeDasharray="5,5"
-        style={{ pointerEvents: "none", stroke: "var(--accent-color)" }}
       />
     );
   };
 
   return (
     <div
-      className="canvas-area"
+      id="canvas-area"
+      className="flex-1 relative overflow-hidden bg-slate-50 dark:bg-stone-950"
       ref={canvasRef}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -169,7 +201,7 @@ export default function Canvas() {
       onMouseLeave={handleMouseUp}
     >
       <div
-        className="canvas-bg-pattern"
+        className="absolute inset-0 pointer-events-none bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] dark:bg-[radial-gradient(#292524_1px,transparent_1px)] delay-0"
         style={{
           backgroundPosition: `${state.transform.x}px ${state.transform.y}px`,
           backgroundSize: `${20 * state.transform.zoom}px ${20 * state.transform.zoom}px`,
@@ -177,16 +209,12 @@ export default function Canvas() {
       />
 
       <div
+        className="absolute inset-0 origin-top-left pointer-events-none"
         style={{
           transform: `translate(${state.transform.x}px, ${state.transform.y}px) scale(${state.transform.zoom})`,
-          transformOrigin: "0 0",
-          position: "absolute",
-          inset: 0,
-          pointerEvents:
-            "none" /* Parent catches events, nodes catch their own */,
         }}
       >
-        <svg className="canvas-svg">
+        <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
           {state.edges.map((edge) => (
             <FlowEdge key={edge.id} edge={edge} />
           ))}
@@ -202,6 +230,31 @@ export default function Canvas() {
             zoom={state.transform.zoom}
           />
         ))}
+      </div>
+
+      {/* Floating Panel */}
+      <div className="absolute right-4 bottom-4 flex flex-col gap-2 bg-white dark:bg-stone-900 p-2 rounded-lg shadow-lg border border-slate-200 dark:border-stone-800 z-10 transition-colors">
+        <button
+          onClick={handleZoomIn}
+          className="p-2 hover:bg-slate-100 dark:hover:bg-stone-800 rounded-md transition-colors text-slate-700 dark:text-slate-300 flex items-center justify-center cursor-pointer"
+          title="Zoom In"
+        >
+          <MagnifyingGlassPlus size={20} />
+        </button>
+        <button
+          onClick={handleZoomOut}
+          className="p-2 hover:bg-slate-100 dark:hover:bg-stone-800 rounded-md transition-colors text-slate-700 dark:text-slate-300 flex items-center justify-center cursor-pointer"
+          title="Zoom Out"
+        >
+          <MagnifyingGlassMinus size={20} />
+        </button>
+        <button
+          onClick={handleCenter}
+          className="p-2 hover:bg-slate-100 dark:hover:bg-stone-800 rounded-md transition-colors text-slate-700 dark:text-slate-300 flex items-center justify-center cursor-pointer"
+          title="Reset View"
+        >
+          <CornersOut size={20} />
+        </button>
       </div>
     </div>
   );
