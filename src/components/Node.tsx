@@ -94,8 +94,16 @@ export default function FlowNode({
       <div className="font-semibold text-sm mb-1">
         {node.description || "Untitled Step"}
       </div>
-      <div className="text-[13px] text-gray-900 dark:text-gray-50 opacity-90 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
-        {node.prompt}
+      <div className="relative group">
+        <div className="text-[13px] text-gray-900 dark:text-gray-50 opacity-90 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
+          {node.prompt}
+        </div>
+        {node.prompt && (
+          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-2 bg-gray-900 dark:bg-stone-800 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50 max-w-[300px] whitespace-normal break-words w-max">
+            {node.prompt}
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-900 dark:border-b-stone-800" />
+          </div>
+        )}
       </div>
 
       {/* Input handle (Left) */}
