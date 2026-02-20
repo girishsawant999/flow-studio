@@ -37,7 +37,7 @@ export default function Sidebar() {
               const newPosition = state.lastInteractionPosition
                 ? {
                     x: state.lastInteractionPosition.x + 75,
-                    y: state.lastInteractionPosition.y + 100,
+                    y: state.lastInteractionPosition.y + 120,
                   }
                 : {
                     x: -state.transform.x / state.transform.zoom + 100,

@@ -68,7 +68,7 @@ const Canvas = () => {
     const newPosition = state.lastInteractionPosition
       ? {
           x: state.lastInteractionPosition.x + 75,
-          y: state.lastInteractionPosition.y + 100,
+          y: state.lastInteractionPosition.y + 120,
         }
       : {
           x: (400 - transform.x) / transform.zoom,
