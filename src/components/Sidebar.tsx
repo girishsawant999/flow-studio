@@ -34,12 +34,11 @@ export default function Sidebar() {
           <button
             className="btn btn-primary w-full"
             onClick={() => {
-              const lastNode =
-                state.nodes.length > 0
-                  ? state.nodes[state.nodes.length - 1]
-                  : null;
-              const newPosition = lastNode
-                ? { x: lastNode.position.x + 250, y: lastNode.position.y }
+              const newPosition = state.lastInteractionPosition
+                ? {
+                    x: state.lastInteractionPosition.x + 75,
+                    y: state.lastInteractionPosition.y + 100,
+                  }
                 : {
                     x: -state.transform.x / state.transform.zoom + 100,
                     y: -state.transform.y / state.transform.zoom + 100,

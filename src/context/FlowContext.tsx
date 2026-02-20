@@ -32,12 +32,18 @@ const initialState: FlowState = {
   selectedNodeId: null,
   selectedEdgeId: null,
   transform: { x: 0, y: 0, zoom: 1 },
+  lastInteractionPosition: { x: 300, y: 200 }, // Matches initial node
 };
 
 const flowReducer = (state: FlowState, action: Action): FlowState => {
   switch (action.type) {
     case "ADD_NODE":
-      return { ...state, nodes: [...state.nodes, action.payload] };
+      return {
+        ...state,
+        nodes: [...state.nodes, action.payload],
+        selectedNodeId: action.payload.id,
+        lastInteractionPosition: action.payload.position,
+      };
     case "UPDATE_NODE":
       return {
         ...state,
@@ -113,6 +119,7 @@ const flowReducer = (state: FlowState, action: Action): FlowState => {
             ? { ...node, position: action.payload.position }
             : node,
         ),
+        lastInteractionPosition: action.payload.position,
       };
     case "SET_TRANSFORM":
       return { ...state, transform: action.payload };

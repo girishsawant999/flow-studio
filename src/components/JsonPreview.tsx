@@ -234,6 +234,7 @@ export function ImportModal({
           selectedNodeId: null,
           selectedEdgeId: null,
           transform: { x: 0, y: 0, zoom: 1 },
+          lastInteractionPosition: null, // Reset on import
         });
       }
     } catch (e: any) {

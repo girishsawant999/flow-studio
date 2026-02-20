@@ -29,4 +29,5 @@ export interface FlowState {
 
   // Canvas Viewport Data
   transform: { x: number; y: number; zoom: number };
+  lastInteractionPosition: Position | null;
 }

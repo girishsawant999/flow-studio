@@ -197,14 +197,17 @@ export default function Canvas() {
     return () => canvasEl.removeEventListener("wheel", handleWheel);
   }, [state.transform, dispatch]);
 
-  // Add new node in the visible viewport center
-  const addNodeAtCenter = useCallback(() => {
-    const centerX = canvasRef.current
-      ? canvasRef.current.getBoundingClientRect().width / 2
-      : 400;
-    const centerY = canvasRef.current
-      ? canvasRef.current.getBoundingClientRect().height / 2
-      : 300;
+  // Add new node at interaction position or viewport center
+  const addNewNode = useCallback(() => {
+    const newPosition = state.lastInteractionPosition
+      ? {
+          x: state.lastInteractionPosition.x + 75,
+          y: state.lastInteractionPosition.y + 100,
+        }
+      : {
+          x: (400 - state.transform.x) / state.transform.zoom,
+          y: (300 - state.transform.y) / state.transform.zoom,
+        };
 
     dispatch({
       type: "ADD_NODE",
@@ -212,13 +215,10 @@ export default function Canvas() {
         id: `node_${uuidv4().substring(0, 6)}`,
         description: "New Step",
         prompt: "",
-        position: {
-          x: (centerX - state.transform.x) / state.transform.zoom,
-          y: (centerY - state.transform.y) / state.transform.zoom,
-        },
+        position: newPosition,
       },
     });
-  }, [dispatch, state.transform]);
+  }, [dispatch, state.transform, state.lastInteractionPosition]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -267,7 +267,7 @@ export default function Canvas() {
           handleCenter();
           break;
         case "n":
-          addNodeAtCenter();
+          addNewNode();
           break;
       }
     };
@@ -280,7 +280,7 @@ export default function Canvas() {
     handleZoomIn,
     handleZoomOut,
     handleCenter,
-    addNodeAtCenter,
+    addNewNode,
   ]);
 
   // Node Handle Events connection
