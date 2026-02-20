@@ -1,15 +1,11 @@
-import {
-  CornersOutIcon as CornersOut,
-  KeyboardIcon as Keyboard,
-  MagnifyingGlassMinusIcon as MagnifyingGlassMinus,
-  MagnifyingGlassPlusIcon as MagnifyingGlassPlus,
-  PencilSimpleIcon as PencilSimple,
-} from "@phosphor-icons/react";
+import { PencilSimple } from "@phosphor-icons/react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useFlow } from "../context/FlowContext";
 import type { Position } from "../types";
+import { ShortcutsHint } from "./Canvas/ShortcutsHint";
+import { ZoomControls } from "./Canvas/ZoomControls";
 import FlowEdge from "./Edge";
 import FlowNode from "./Node";
 
@@ -429,88 +425,13 @@ export default function Canvas() {
         ))}
       </div>
 
-      {/* Floating Shortcuts Hint */}
-      <div className="group absolute left-4 bottom-4 z-10">
-        <div className="bg-white dark:bg-stone-900 border border-slate-200 dark:border-stone-800 rounded-lg shadow-lg overflow-hidden transition-all duration-200">
-          <div className="hidden group-hover:grid px-4 py-3 grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs text-slate-600 dark:text-slate-400 min-w-[190px] animate-[fadeIn_150ms_ease-out]">
-            <span className="font-semibold text-slate-800 dark:text-slate-200 flex gap-1">
-              <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
-                W
-              </kbd>
-              <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
-                A
-              </kbd>
-              <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
-                S
-              </kbd>
-              <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
-                D
-              </kbd>
-            </span>
-            <span>Pan</span>
+      <ShortcutsHint />
 
-            <span className="font-semibold text-slate-800 dark:text-slate-200 flex gap-1">
-              <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
-                +
-              </kbd>
-              <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
-                −
-              </kbd>
-            </span>
-            <span>Zoom In / Out</span>
-
-            <span className="font-semibold text-slate-800 dark:text-slate-200">
-              <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
-                0
-              </kbd>
-            </span>
-            <span>Center View</span>
-
-            <span className="font-semibold text-slate-800 dark:text-slate-200">
-              <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
-                N
-              </kbd>
-            </span>
-            <span>New Node</span>
-            <span className="font-semibold text-slate-800 dark:text-slate-200">
-              <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
-                Delete
-              </kbd>
-            </span>
-            <span>Delete Node/Edge</span>
-          </div>
-
-          <button className="flex group-hover:hidden items-center gap-1.5 px-3 py-2 text-xs text-slate-500 dark:text-slate-400 cursor-pointer select-none">
-            <Keyboard size={16} />
-            <span>Shortcuts</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Floating Zoom Panel */}
-      <div className="absolute right-4 bottom-4 flex flex-col gap-2 bg-white dark:bg-stone-900 p-2 rounded-lg shadow-lg border border-slate-200 dark:border-stone-800 z-10 transition-colors">
-        <button
-          onClick={handleZoomIn}
-          className="p-2 hover:bg-slate-100 dark:hover:bg-stone-800 rounded-md transition-colors text-slate-700 dark:text-slate-300 flex items-center justify-center cursor-pointer"
-          title="Zoom In (+)"
-        >
-          <MagnifyingGlassPlus size={20} />
-        </button>
-        <button
-          onClick={handleZoomOut}
-          className="p-2 hover:bg-slate-100 dark:hover:bg-stone-800 rounded-md transition-colors text-slate-700 dark:text-slate-300 flex items-center justify-center cursor-pointer"
-          title="Zoom Out (-)"
-        >
-          <MagnifyingGlassMinus size={20} />
-        </button>
-        <button
-          onClick={handleCenter}
-          className="p-2 hover:bg-slate-100 dark:hover:bg-stone-800 rounded-md transition-colors text-slate-700 dark:text-slate-300 flex items-center justify-center cursor-pointer"
-          title="Reset View (0)"
-        >
-          <CornersOut size={20} />
-        </button>
-      </div>
+      <ZoomControls
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        onCenter={handleCenter}
+      />
     </div>
   );
 }
