@@ -140,7 +140,7 @@ const Canvas = () => {
   return (
     <div
       id="canvas-area"
-      className="flex-1 relative overflow-hidden bg-slate-50 dark:bg-stone-950"
+      className={`flex-1 relative overflow-hidden bg-slate-50 dark:bg-stone-950 ${isPanning ? "cursor-move" : ""}`}
       ref={canvasRef}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMoveInternal}
