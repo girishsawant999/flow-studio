@@ -76,29 +76,88 @@ export default function Canvas() {
   };
 
   const handleZoomIn = () => {
+    if (!canvasRef.current) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const newZoom = Math.min(state.transform.zoom + 0.2, 3);
+    const zoomRatio = newZoom / state.transform.zoom;
+
     dispatch({
       type: "SET_TRANSFORM",
       payload: {
-        ...state.transform,
-        zoom: Math.min(state.transform.zoom + 0.2, 3),
+        x: centerX - (centerX - state.transform.x) * zoomRatio,
+        y: centerY - (centerY - state.transform.y) * zoomRatio,
+        zoom: newZoom,
       },
     });
   };
 
   const handleZoomOut = () => {
+    if (!canvasRef.current) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const newZoom = Math.max(state.transform.zoom - 0.2, 0.1);
+    const zoomRatio = newZoom / state.transform.zoom;
+
     dispatch({
       type: "SET_TRANSFORM",
       payload: {
-        ...state.transform,
-        zoom: Math.max(state.transform.zoom - 0.2, 0.1),
+        x: centerX - (centerX - state.transform.x) * zoomRatio,
+        y: centerY - (centerY - state.transform.y) * zoomRatio,
+        zoom: newZoom,
       },
     });
   };
 
   const handleCenter = () => {
+    if (state.nodes.length === 0) {
+      dispatch({
+        type: "SET_TRANSFORM",
+        payload: { x: 0, y: 0, zoom: 1 },
+      });
+      return;
+    }
+
+    if (!canvasRef.current) return;
+    const canvasRect = canvasRef.current.getBoundingClientRect();
+    const padding = 50;
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    state.nodes.forEach((node) => {
+      // Approximate dimensions based on typical node size
+      const nodeWidth = 320;
+      const nodeHeight = 150;
+
+      minX = Math.min(minX, node.position.x);
+      minY = Math.min(minY, node.position.y);
+      maxX = Math.max(maxX, node.position.x + nodeWidth);
+      maxY = Math.max(maxY, node.position.y + nodeHeight);
+    });
+
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
+
+    // Calculate maximum possible zoom to fit content
+    const zoomX = (canvasRect.width - padding * 2) / contentWidth;
+    const zoomY = (canvasRect.height - padding * 2) / contentHeight;
+    const newZoom = Math.min(Math.max(0.1, Math.min(zoomX, zoomY, 1.5)), 3);
+
+    // Calculate center coordinates
+    const centerX = minX + contentWidth / 2;
+    const centerY = minY + contentHeight / 2;
+
+    const newX = canvasRect.width / 2 - centerX * newZoom;
+    const newY = canvasRect.height / 2 - centerY * newZoom;
+
     dispatch({
       type: "SET_TRANSFORM",
-      payload: { x: 0, y: 0, zoom: 1 },
+      payload: { x: newX, y: newY, zoom: newZoom },
     });
   };
 
@@ -214,7 +273,7 @@ export default function Canvas() {
           transform: `translate(${state.transform.x}px, ${state.transform.y}px) scale(${state.transform.zoom})`,
         }}
       >
-        <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
+        <svg className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible">
           {state.edges.map((edge) => (
             <FlowEdge key={edge.id} edge={edge} />
           ))}
