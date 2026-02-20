@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFlow } from "../context/FlowContext";
 import type { Position } from "../types";
 
@@ -8,46 +8,40 @@ export const useCanvasViewport = () => {
   const [isPanning, setIsPanning] = useState(false);
   const [startPanPos, setStartPanPos] = useState<Position>({ x: 0, y: 0 });
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      if (
-        e.target === canvasRef.current ||
-        (e.target as Element).classList.contains("canvas-svg")
-      ) {
-        setIsPanning(true);
-        setStartPanPos({ x: e.clientX, y: e.clientY });
-        dispatch({ type: "SET_SELECTED_NODE", payload: null });
-        dispatch({ type: "SET_SELECTED_EDGE", payload: null });
-      }
-    },
-    [dispatch],
-  );
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (
+      e.target === canvasRef.current ||
+      (e.target as Element).classList.contains("canvas-svg")
+    ) {
+      setIsPanning(true);
+      setStartPanPos({ x: e.clientX, y: e.clientY });
+      dispatch({ type: "SET_SELECTED_NODE", payload: null });
+      dispatch({ type: "SET_SELECTED_EDGE", payload: null });
+    }
+  };
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      if (isPanning) {
-        const dx = e.clientX - startPanPos.x;
-        const dy = e.clientY - startPanPos.y;
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isPanning) {
+      const dx = e.clientX - startPanPos.x;
+      const dy = e.clientY - startPanPos.y;
 
-        dispatch({
-          type: "SET_TRANSFORM",
-          payload: {
-            ...state.transform,
-            x: state.transform.x + dx,
-            y: state.transform.y + dy,
-          },
-        });
-        setStartPanPos({ x: e.clientX, y: e.clientY });
-      }
-    },
-    [isPanning, startPanPos, state.transform, dispatch],
-  );
+      dispatch({
+        type: "SET_TRANSFORM",
+        payload: {
+          ...state.transform,
+          x: state.transform.x + dx,
+          y: state.transform.y + dy,
+        },
+      });
+      setStartPanPos({ x: e.clientX, y: e.clientY });
+    }
+  };
 
-  const handleMouseUp = useCallback(() => {
+  const handleMouseUp = () => {
     setIsPanning(false);
-  }, []);
+  };
 
-  const handleZoomIn = useCallback(() => {
+  const handleZoomIn = () => {
     if (!canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const centerX = rect.width / 2;
@@ -63,9 +57,9 @@ export const useCanvasViewport = () => {
         zoom: newZoom,
       },
     });
-  }, [state.transform, dispatch]);
+  };
 
-  const handleZoomOut = useCallback(() => {
+  const handleZoomOut = () => {
     if (!canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const centerX = rect.width / 2;
@@ -81,9 +75,9 @@ export const useCanvasViewport = () => {
         zoom: newZoom,
       },
     });
-  }, [state.transform, dispatch]);
+  };
 
-  const handleCenter = useCallback(() => {
+  const handleCenter = () => {
     if (state.nodes.length === 0) {
       dispatch({
         type: "SET_TRANSFORM",
@@ -124,7 +118,7 @@ export const useCanvasViewport = () => {
       type: "SET_TRANSFORM",
       payload: { x: newX, y: newY, zoom: newZoom },
     });
-  }, [state.nodes, dispatch]);
+  };
 
   useEffect(() => {
     const canvasEl = canvasRef.current;
