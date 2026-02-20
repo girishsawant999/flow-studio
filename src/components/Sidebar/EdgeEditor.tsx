@@ -34,13 +34,32 @@ export function EdgeEditor({ edge }: EdgeEditorProps) {
     setNewValue("");
   };
 
-  const handleRemoveParam = (key: string) => {
+  const handleRemoveEdge = () => {
+    dispatch({ type: "REMOVE_EDGE", payload: edge.id });
+  };
+
+  const handleConditionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch({
+      type: "UPDATE_EDGE",
+      payload: { id: edge.id, data: { condition: e.target.value } },
+    });
+  };
+
+  const handleRemoveParamClick = (key: string) => {
     const updatedParams = { ...(edge.parameters || {}) };
     delete updatedParams[key];
     dispatch({
       type: "UPDATE_EDGE",
       payload: { id: edge.id, data: { parameters: updatedParams } },
     });
+  };
+
+  const handleNewKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewKey(e.target.value);
+  };
+
+  const handleNewValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewValue(e.target.value);
   };
 
   return (
@@ -52,7 +71,7 @@ export function EdgeEditor({ edge }: EdgeEditorProps) {
         </div>
         <button
           className="btn-icon"
-          onClick={() => dispatch({ type: "REMOVE_EDGE", payload: edge.id })}
+          onClick={handleRemoveEdge}
           title="Delete Edge"
         >
           <Trash size={18} className="text-red-500" />
@@ -117,12 +136,7 @@ export function EdgeEditor({ edge }: EdgeEditorProps) {
             className="w-full px-3 py-2.5 rounded-lg border border-slate-200 dark:border-stone-800 bg-slate-50 dark:bg-stone-950 text-gray-900 dark:text-gray-50 text-sm focus:outline-none focus:border-[#7ed6df] focus:ring-2 focus:ring-[rgba(126,214,223,0.2)] transition-colors duration-200"
             placeholder="e.g. If user says yes"
             value={edge.condition}
-            onChange={(e) =>
-              dispatch({
-                type: "UPDATE_EDGE",
-                payload: { id: edge.id, data: { condition: e.target.value } },
-              })
-            }
+            onChange={handleConditionChange}
           />
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-[1.4]">
             This text is displayed on the canvas branch and used to evaluate
@@ -154,7 +168,7 @@ export function EdgeEditor({ edge }: EdgeEditorProps) {
                     </div>
                   </div>
                   <button
-                    onClick={() => handleRemoveParam(key)}
+                    onClick={() => handleRemoveParamClick(key)}
                     className="p-1 text-gray-400 hover:text-red-500 transition-colors"
                   >
                     <Trash size={14} />
@@ -171,14 +185,14 @@ export function EdgeEditor({ edge }: EdgeEditorProps) {
                 placeholder="Key"
                 className="w-full px-2 py-1.5 text-xs rounded border border-slate-200 dark:border-stone-800 bg-white dark:bg-stone-900"
                 value={newKey}
-                onChange={(e) => setNewKey(e.target.value)}
+                onChange={handleNewKeyChange}
               />
               <input
                 type="text"
                 placeholder="Value"
                 className="w-full px-2 py-1.5 text-xs rounded border border-slate-200 dark:border-stone-800 bg-white dark:bg-stone-900"
                 value={newValue}
-                onChange={(e) => setNewValue(e.target.value)}
+                onChange={handleNewValueChange}
               />
             </div>
             <button

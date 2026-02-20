@@ -36,6 +36,28 @@ export function NodeEditor({ node }: NodeEditorProps) {
 
   const isStartNode = state.startNodeId === node.id;
 
+  const handleRemoveNode = () => {
+    dispatch({ type: "REMOVE_NODE", payload: node.id });
+  };
+
+  const handleSetStartNode = () => {
+    dispatch({ type: "SET_START_NODE", payload: node.id });
+  };
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch({
+      type: "UPDATE_NODE",
+      payload: { id: node.id, data: { description: e.target.value } },
+    });
+  };
+
+  const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    dispatch({
+      type: "UPDATE_NODE",
+      payload: { id: node.id, data: { prompt: e.target.value } },
+    });
+  };
+
   return (
     <div className="w-[380px] bg-white dark:bg-stone-900 border-l border-slate-200 dark:border-stone-800 flex flex-col shadow-[-4px_0_15px_rgba(0,0,0,0.03)] z-10 h-full">
       <div className="px-5 py-4 border-b border-slate-200 dark:border-stone-800 font-semibold flex items-center justify-between">
@@ -49,7 +71,7 @@ export function NodeEditor({ node }: NodeEditorProps) {
         </div>
         <button
           className="btn-icon"
-          onClick={() => dispatch({ type: "REMOVE_NODE", payload: node.id })}
+          onClick={handleRemoveNode}
           title="Delete Node"
         >
           <Trash size={18} className="text-red-500" />
@@ -85,9 +107,7 @@ export function NodeEditor({ node }: NodeEditorProps) {
             className={`btn w-full shadow-md ${
               isStartNode ? "btn-secondary" : "btn-primary"
             }`}
-            onClick={() =>
-              dispatch({ type: "SET_START_NODE", payload: node.id })
-            }
+            onClick={handleSetStartNode}
             disabled={isStartNode}
           >
             <Flag weight={isStartNode ? "fill" : "regular"} size={16} />
@@ -119,12 +139,7 @@ export function NodeEditor({ node }: NodeEditorProps) {
             }`}
             placeholder="e.g. Ask User Name"
             value={node.description || ""}
-            onChange={(e) =>
-              dispatch({
-                type: "UPDATE_NODE",
-                payload: { id: node.id, data: { description: e.target.value } },
-              })
-            }
+            onChange={handleDescriptionChange}
           />
         </div>
 
@@ -137,12 +152,7 @@ export function NodeEditor({ node }: NodeEditorProps) {
             className="w-full px-3 py-2.5 rounded-lg border border-slate-200 dark:border-stone-800 bg-slate-50 dark:bg-stone-950 text-gray-900 dark:text-gray-50 text-sm focus:outline-none focus:border-[#7ed6df] focus:ring-2 focus:ring-[rgba(126,214,223,0.2)] transition-colors duration-200 resize-y min-h-[120px] leading-relaxed"
             placeholder="What should the bot say at this step?"
             value={node.prompt}
-            onChange={(e) =>
-              dispatch({
-                type: "UPDATE_NODE",
-                payload: { id: node.id, data: { prompt: e.target.value } },
-              })
-            }
+            onChange={handlePromptChange}
           />
         </div>
       </div>

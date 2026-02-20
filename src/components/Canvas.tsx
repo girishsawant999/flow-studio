@@ -1,5 +1,5 @@
 import type { MouseEvent as ReactMouseEvent } from "react";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useFlow } from "../context/FlowContext";
 import type { Position } from "../types";
@@ -33,38 +33,32 @@ const Canvas = () => {
   );
   const [mousePos, setMousePos] = useState<Position>({ x: 0, y: 0 });
 
-  const updateMousePos = useCallback(
-    (e: ReactMouseEvent) => {
-      if (canvasRef.current) {
-        const rect = canvasRef.current.getBoundingClientRect();
-        const rawX = e.clientX - rect.left;
-        const rawY = e.clientY - rect.top;
-        const normalizedX = (rawX - transform.x) / transform.zoom;
-        const normalizedY = (rawY - transform.y) / transform.zoom;
-        setMousePos({ x: normalizedX, y: normalizedY });
-      }
-    },
-    [canvasRef, transform.x, transform.y, transform.zoom],
-  );
+  const updateMousePos = (e: ReactMouseEvent) => {
+    if (canvasRef.current) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      const rawX = e.clientX - rect.left;
+      const rawY = e.clientY - rect.top;
+      const normalizedX = (rawX - transform.x) / transform.zoom;
+      const normalizedY = (rawY - transform.y) / transform.zoom;
+      setMousePos({ x: normalizedX, y: normalizedY });
+    }
+  };
 
-  const handleMouseMoveInternal = useCallback(
-    (e: ReactMouseEvent) => {
-      updateMousePos(e);
-      handleMouseMove(e);
-    },
-    [updateMousePos, handleMouseMove],
-  );
+  const handleMouseMoveInternal = (e: ReactMouseEvent) => {
+    updateMousePos(e);
+    handleMouseMove(e);
+  };
 
-  const handleMouseUpInternal = useCallback(() => {
+  const handleMouseUpInternal = () => {
     handleViewportMouseUp();
     if (isDrawingEdge) {
       setIsDrawingEdge(false);
       setDrawingEdgeSource(null);
     }
-  }, [handleViewportMouseUp, isDrawingEdge]);
+  };
 
   // Add new node at interaction position or viewport center
-  const addNewNode = useCallback(() => {
+  const addNewNode = () => {
     const newPosition = state.lastInteractionPosition
       ? {
           x: state.lastInteractionPosition.x + 75,
@@ -84,7 +78,7 @@ const Canvas = () => {
         position: newPosition,
       },
     });
-  }, [dispatch, transform, state.lastInteractionPosition]);
+  };
 
   useKeyboardShortcuts({
     handleZoomIn,
@@ -94,36 +88,30 @@ const Canvas = () => {
   });
 
   // Node Handle Events connection
-  const onHandleMouseDown = useCallback(
-    (nodeId: string, e: React.MouseEvent) => {
-      e.stopPropagation();
-      setIsDrawingEdge(true);
-      setDrawingEdgeSource(nodeId);
-    },
-    [],
-  );
+  const onHandleMouseDown = (nodeId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDrawingEdge(true);
+    setDrawingEdgeSource(nodeId);
+  };
 
-  const onHandleMouseUp = useCallback(
-    (nodeId: string, e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (isDrawingEdge && drawingEdgeSource && drawingEdgeSource !== nodeId) {
-        dispatch({
-          type: "ADD_EDGE",
-          payload: {
-            id: `edge_${uuidv4().substring(0, 8)}`,
-            sourceNodeId: drawingEdgeSource,
-            targetNodeId: nodeId,
-            condition: "New Condition",
-          },
-        });
-      }
-      setIsDrawingEdge(false);
-      setDrawingEdgeSource(null);
-    },
-    [isDrawingEdge, drawingEdgeSource, dispatch],
-  );
+  const onHandleMouseUp = (nodeId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isDrawingEdge && drawingEdgeSource && drawingEdgeSource !== nodeId) {
+      dispatch({
+        type: "ADD_EDGE",
+        payload: {
+          id: `edge_${uuidv4().substring(0, 8)}`,
+          sourceNodeId: drawingEdgeSource,
+          targetNodeId: nodeId,
+          condition: "New Condition",
+        },
+      });
+    }
+    setIsDrawingEdge(false);
+    setDrawingEdgeSource(null);
+  };
 
-  const renderDrawingEdge = useCallback(() => {
+  const renderDrawingEdge = () => {
     if (!isDrawingEdge || !drawingEdgeSource) return null;
     const sourceNode = state.nodes.find((n) => n.id === drawingEdgeSource);
     if (!sourceNode) return null;
@@ -147,7 +135,7 @@ const Canvas = () => {
         strokeDasharray="5,5"
       />
     );
-  }, [isDrawingEdge, drawingEdgeSource, state.nodes, mousePos]);
+  };
 
   return (
     <div

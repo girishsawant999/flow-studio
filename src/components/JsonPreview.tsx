@@ -60,9 +60,37 @@ export default function JsonPreview() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "flow.json";
+    a.download = `${state.flowName || "flow"}.json`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const toggleCollapsed = () => {
+    setCollapsed((prev) => !prev);
+  };
+
+  const handleImportClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsImportModalOpen(true);
+  };
+
+  const handleCopyClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleCopy();
+  };
+
+  const handleDownloadClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleDownload();
+  };
+
+  const handleCloseImport = () => {
+    setIsImportModalOpen(false);
+  };
+
+  const handleImportSuccess = (newState: FlowState) => {
+    dispatch({ type: "IMPORT_FLOW", payload: newState });
+    setIsImportModalOpen(false);
   };
 
   return (
@@ -74,7 +102,7 @@ export default function JsonPreview() {
       >
         <div
           className="px-5 py-4 border-b border-slate-200 dark:border-stone-800 font-semibold flex items-center justify-between cursor-pointer select-none"
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={toggleCollapsed}
         >
           <div className="flex items-center gap-2">
             {collapsed ? <CaretUp size={16} /> : <CaretDown size={16} />}
@@ -84,20 +112,14 @@ export default function JsonPreview() {
             <div className="flex gap-1">
               <button
                 className="btn-icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsImportModalOpen(true);
-                }}
+                onClick={handleImportClick}
                 title="Import JSON"
               >
                 <UploadSimple size={16} />
               </button>
               <button
                 className="btn-icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCopy();
-                }}
+                onClick={handleCopyClick}
                 title="Copy"
               >
                 <Copy
@@ -107,10 +129,7 @@ export default function JsonPreview() {
               </button>
               <button
                 className="btn-icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDownload();
-                }}
+                onClick={handleDownloadClick}
                 title="Download"
               >
                 <DownloadSimple size={16} />
@@ -128,11 +147,8 @@ export default function JsonPreview() {
 
       {isImportModalOpen && (
         <ImportModal
-          onClose={() => setIsImportModalOpen(false)}
-          onImport={(newState) => {
-            dispatch({ type: "IMPORT_FLOW", payload: newState });
-            setIsImportModalOpen(false);
-          }}
+          onClose={handleCloseImport}
+          onImport={handleImportSuccess}
         />
       )}
     </>
@@ -149,6 +165,11 @@ export function ImportModal({
   const [jsonText, setJsonText] = useState("");
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [parsedData, setParsedData] = useState<FlowState | null>(null);
+
+  const handleJsonChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setJsonText(e.target.value);
+    setParsedData(null); // Reset valid state on change
+  };
 
   const handleValidate = () => {
     try {
@@ -167,44 +188,67 @@ export function ImportModal({
       let yOffset = 100;
       let xOffset = 100;
 
-      data.nodes.forEach((n: any, idx: number) => {
-        if (!n.id) errors.push(`Node at index ${idx} is missing an 'id'.`);
-        if (!n.description)
-          errors.push(`Node '${n.id || idx}' is missing a 'description'.`);
+      data.nodes.forEach(
+        (
+          n: {
+            id: string;
+            description: string;
+            prompt?: string;
+            edges?: Array<{
+              to_node_id: string;
+              condition?: string;
+              parameters?: Record<string, string>;
+            }>;
+          },
+          idx: number,
+        ) => {
+          if (!n.id) errors.push(`Node at index ${idx} is missing an 'id'.`);
+          if (!n.description)
+            errors.push(`Node '${n.id || idx}' is missing a 'description'.`);
 
-        const x = xOffset;
-        const y = yOffset;
+          const x = xOffset;
+          const y = yOffset;
 
-        yOffset += 150;
-        if (yOffset > 600) {
-          yOffset = 100;
-          xOffset += 300;
-        }
+          yOffset += 150;
+          if (yOffset > 600) {
+            yOffset = 100;
+            xOffset += 300;
+          }
 
-        newNodes.push({
-          id: n.id,
-          description: n.description || "",
-          prompt: n.prompt || "",
-          position: { x, y },
-        });
-
-        if (n.edges && Array.isArray(n.edges)) {
-          n.edges.forEach((e: any, eIdx: number) => {
-            if (!e.to_node_id)
-              errors.push(
-                `Edge #${eIdx} on Node '${n.id}' is missing 'to_node_id'.`,
-              );
-
-            newEdges.push({
-              id: `edge_${uuidv4().substring(0, 8)}`,
-              sourceNodeId: n.id,
-              targetNodeId: e.to_node_id,
-              condition: e.condition || "",
-              parameters: e.parameters,
-            });
+          newNodes.push({
+            id: n.id,
+            description: n.description || "",
+            prompt: n.prompt || "",
+            position: { x, y },
           });
-        }
-      });
+
+          if (n.edges && Array.isArray(n.edges)) {
+            n.edges.forEach(
+              (
+                e: {
+                  to_node_id: string;
+                  condition?: string;
+                  parameters?: Record<string, string>;
+                },
+                eIdx: number,
+              ) => {
+                if (!e.to_node_id)
+                  errors.push(
+                    `Edge #${eIdx} on Node '${n.id}' is missing 'to_node_id'.`,
+                  );
+
+                newEdges.push({
+                  id: `edge_${uuidv4().substring(0, 8)}`,
+                  sourceNodeId: n.id,
+                  targetNodeId: e.to_node_id,
+                  condition: e.condition || "",
+                  parameters: e.parameters,
+                });
+              },
+            );
+          }
+        },
+      );
 
       if (!data.start_node_id) {
         errors.push("Missing 'start_node_id'.");
@@ -237,9 +281,16 @@ export function ImportModal({
           lastInteractionPosition: null, // Reset on import
         });
       }
-    } catch (e: any) {
-      setValidationErrors(["Invalid JSON Syntax: " + e.message]);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      setValidationErrors(["Invalid JSON Syntax: " + message]);
       setParsedData(null);
+    }
+  };
+
+  const handleImportConfirm = () => {
+    if (parsedData) {
+      onImport(parsedData);
     }
   };
 
@@ -265,10 +316,7 @@ export function ImportModal({
             className="w-full h-[200px] font-mono text-[13px] mb-4 p-3 rounded-lg border border-slate-200 dark:border-stone-800 bg-slate-50 dark:bg-stone-950 text-gray-900 dark:text-gray-50 focus:outline-none focus:border-[#7ed6df] focus:ring-2 focus:ring-[#7ed6df]/20 transition-all duration-200"
             placeholder={`{\n  "nodes": [...],\n  "start_node_id": "..."\n}`}
             value={jsonText}
-            onChange={(e) => {
-              setJsonText(e.target.value);
-              setParsedData(null); // Reset valid state on change
-            }}
+            onChange={handleJsonChange}
           />
 
           {validationErrors.length > 0 && (
@@ -320,10 +368,7 @@ export function ImportModal({
               Validate JSON
             </button>
           ) : (
-            <button
-              className="btn btn-success"
-              onClick={() => onImport(parsedData)}
-            >
+            <button className="btn btn-success" onClick={handleImportConfirm}>
               Import to Canvas
             </button>
           )}

@@ -22,7 +22,7 @@ const FlowNode = React.memo(function FlowNode({
   const isSelected = state.selectedNodeId === node.id;
   const isStart = state.startNodeId === node.id;
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleNodeMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent canvas pan
     setIsDragging(true);
 
@@ -79,6 +79,22 @@ const FlowNode = React.memo(function FlowNode({
     };
   }, [isDragging, dispatch, state.transform, dragOffset, node.id]);
 
+  const handleInputMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
+  const handleInputMouseUp = (e: React.MouseEvent) => {
+    onHandleMouseUp(node.id, e);
+  };
+
+  const handleOutputMouseDown = (e: React.MouseEvent) => {
+    onHandleMouseDown(node.id, e);
+  };
+
+  const handleOutputMouseUp = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <div
       className={`absolute pointer-events-auto bg-white dark:bg-stone-900 border rounded-xl p-4 min-w-[220px] shadow-sm cursor-grab select-none transition-shadow duration-200 active:cursor-grabbing hover:shadow-md ${isSelected ? "border-[#7ed6df] shadow-[0_0_0_3px_rgba(126,214,223,0.3)] z-10" : "border-slate-300 dark:border-stone-700 z-2"} ${isStart ? "border-l-4! border-l-[#7ed6df]!" : ""} animate-[slideIn_0.3s_ease-out_forwards]`}
@@ -86,7 +102,7 @@ const FlowNode = React.memo(function FlowNode({
         left: node.position.x,
         top: node.position.y,
       }}
-      onMouseDown={handleMouseDown}
+      onMouseDown={handleNodeMouseDown}
     >
       <div className="text-[11px] text-gray-500 dark:text-gray-400 font-mono mb-3">
         {node.id}
@@ -109,19 +125,15 @@ const FlowNode = React.memo(function FlowNode({
       {/* Input handle (Left) */}
       <div
         className="absolute w-4 h-4 bg-white dark:bg-stone-900 border-2 border-slate-200 dark:border-stone-800 rounded-full top-1/2 -translate-y-1/2 cursor-crosshair transition-all duration-200 z-5 hover:bg-[#7ed6df] hover:border-[#7ed6df] hover:scale-120 -left-2"
-        onMouseDown={(e) => {
-          e.stopPropagation();
-        }} // Maybe left doesn't start edges, just receives them
-        onMouseUp={(e) => onHandleMouseUp(node.id, e)}
+        onMouseDown={handleInputMouseDown}
+        onMouseUp={handleInputMouseUp}
       />
 
       {/* Output handle (Right) */}
       <div
         className="absolute w-4 h-4 bg-white dark:bg-stone-900 border-2 border-slate-200 dark:border-stone-800 rounded-full top-1/2 -translate-y-1/2 cursor-crosshair transition-all duration-200 z-5 hover:bg-[#7ed6df] hover:border-[#7ed6df] hover:scale-120 -right-2"
-        onMouseDown={(e) => onHandleMouseDown(node.id, e)}
-        onMouseUp={(e) => {
-          e.stopPropagation();
-        }}
+        onMouseDown={handleOutputMouseDown}
+        onMouseUp={handleOutputMouseUp}
       />
     </div>
   );
