@@ -3,6 +3,12 @@ export interface Position {
   y: number;
 }
 
+export interface Transform {
+  x: number;
+  y: number;
+  zoom: number;
+}
+
 export interface Edge {
   id: string; // Internal unique ID
   sourceNodeId: string;
@@ -28,6 +34,6 @@ export interface FlowState {
   selectedEdgeId: string | null;
 
   // Canvas Viewport Data
-  transform: { x: number; y: number; zoom: number };
+  transform: Transform;
   lastInteractionPosition: Position | null;
 }

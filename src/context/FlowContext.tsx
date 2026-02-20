@@ -44,35 +44,39 @@ const flowReducer = (state: FlowState, action: Action): FlowState => {
         selectedNodeId: action.payload.id,
         lastInteractionPosition: action.payload.position,
       };
-    case "UPDATE_NODE":
+    case "UPDATE_NODE": {
+      const { id, data } = action.payload;
+      const idChanged = data.id && data.id !== id;
+
       return {
         ...state,
         nodes: state.nodes.map((node) =>
-          node.id === action.payload.id
-            ? { ...node, ...action.payload.data }
-            : node,
+          node.id === id ? { ...node, ...data } : node,
         ),
-        // Important: if the node ID changed, we also need to update edges and startNodeId
-        edges: state.edges.map((edge) => {
-          if (action.payload.data.id) {
-            const newEdge = { ...edge };
-            if (edge.sourceNodeId === action.payload.id)
-              newEdge.sourceNodeId = action.payload.data.id;
-            if (edge.targetNodeId === action.payload.id)
-              newEdge.targetNodeId = action.payload.data.id;
-            return newEdge;
-          }
-          return edge;
-        }),
+        // Only update edges and startNodeId if the ID actually changed
+        edges: idChanged
+          ? state.edges.map((edge) => {
+              const newEdge = { ...edge };
+              let changed = false;
+              if (edge.sourceNodeId === id) {
+                newEdge.sourceNodeId = data.id!;
+                changed = true;
+              }
+              if (edge.targetNodeId === id) {
+                newEdge.targetNodeId = data.id!;
+                changed = true;
+              }
+              return changed ? newEdge : edge;
+            })
+          : state.edges,
         startNodeId:
-          action.payload.data.id && state.startNodeId === action.payload.id
-            ? action.payload.data.id
-            : state.startNodeId,
+          idChanged && state.startNodeId === id ? data.id! : state.startNodeId,
         selectedNodeId:
-          action.payload.data.id && state.selectedNodeId === action.payload.id
-            ? action.payload.data.id
+          idChanged && state.selectedNodeId === id
+            ? data.id!
             : state.selectedNodeId,
       };
+    }
     case "REMOVE_NODE":
       return {
         ...state,
@@ -139,11 +143,10 @@ const FlowContext = createContext<{
 
 export const FlowProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(flowReducer, initialState);
-  return (
-    <FlowContext.Provider value={{ state, dispatch }}>
-      {children}
-    </FlowContext.Provider>
-  );
+
+  const value = React.useMemo(() => ({ state, dispatch }), [state]);
+
+  return <FlowContext.Provider value={value}>{children}</FlowContext.Provider>;
 };
 
 export const useFlow = () => {

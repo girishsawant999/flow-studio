@@ -6,7 +6,7 @@ interface FlowEdgeProps {
   edge: EdgeType;
 }
 
-export default function FlowEdge({ edge }: FlowEdgeProps) {
+const FlowEdge = React.memo(function FlowEdge({ edge }: FlowEdgeProps) {
   const { state, dispatch } = useFlow();
 
   const sourceNode = state.nodes.find((n) => n.id === edge.sourceNodeId);
@@ -69,4 +69,6 @@ export default function FlowEdge({ edge }: FlowEdgeProps) {
       </foreignObject>
     </>
   );
-}
+});
+
+export default FlowEdge;

@@ -9,7 +9,7 @@ interface FlowNodeProps {
   onHandleMouseUp: (id: string, e: React.MouseEvent) => void;
 }
 
-export default function FlowNode({
+const FlowNode = React.memo(function FlowNode({
   node,
   zoom,
   onHandleMouseDown,
@@ -125,4 +125,6 @@ export default function FlowNode({
       />
     </div>
   );
-}
+});
+
+export default FlowNode;
