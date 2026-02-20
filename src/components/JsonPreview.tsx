@@ -227,6 +227,7 @@ export function ImportModal({
       } else {
         setValidationErrors([]);
         setParsedData({
+          flowName: data.name || "Imported Flow",
           nodes: newNodes,
           edges: newEdges,
           startNodeId: data.start_node_id,
