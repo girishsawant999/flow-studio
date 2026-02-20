@@ -480,6 +480,12 @@ export default function Canvas() {
                 </kbd>
               </span>
               <span>New Node</span>
+              <span className="font-semibold text-slate-800 dark:text-slate-200">
+                <kbd className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-[11px] font-mono">
+                  Delete
+                </kbd>
+              </span>
+              <span>Delete Node/Edge</span>
             </div>
           ) : (
             <button className="flex items-center gap-1.5 px-3 py-2 text-xs text-slate-500 dark:text-slate-400 cursor-pointer select-none">
