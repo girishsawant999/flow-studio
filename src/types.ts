@@ -20,6 +20,7 @@ export interface Node {
 
 // Normalized state structure for Context
 export interface FlowState {
+  flowName: string;
   nodes: Node[];
   edges: Edge[];
   startNodeId: string | null;

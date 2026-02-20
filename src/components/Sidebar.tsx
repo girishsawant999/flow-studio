@@ -83,7 +83,7 @@ export default function Sidebar() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "flow.json";
+    a.download = `${state.flowName || "flow"}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };

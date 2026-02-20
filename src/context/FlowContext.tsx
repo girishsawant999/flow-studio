@@ -14,9 +14,11 @@ export type Action =
   | { type: "SET_SELECTED_EDGE"; payload: string | null }
   | { type: "MOVE_NODE"; payload: { id: string; position: Position } }
   | { type: "SET_TRANSFORM"; payload: { x: number; y: number; zoom: number } }
-  | { type: "IMPORT_FLOW"; payload: FlowState };
+  | { type: "IMPORT_FLOW"; payload: FlowState }
+  | { type: "SET_FLOW_NAME"; payload: string };
 
 const initialState: FlowState = {
+  flowName: "Untitled Flow",
   nodes: [
     {
       id: "node_1",
@@ -116,6 +118,8 @@ const flowReducer = (state: FlowState, action: Action): FlowState => {
       return { ...state, transform: action.payload };
     case "IMPORT_FLOW":
       return action.payload;
+    case "SET_FLOW_NAME":
+      return { ...state, flowName: action.payload };
     default:
       return state;
   }
